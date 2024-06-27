@@ -2,9 +2,6 @@ import { createElement } from '@wordpress/element';
 
 
 function Infos({ program }) {
-    if (!program) {
-        return <div>Loading...</div>;
-    }
 
     const formatDate = (dateString) => {
         const options = { year: 'numeric', month: '2-digit', day: '2-digit' };

@@ -1,20 +1,5 @@
 <?php
-/*
-Plugin Name: Altius Conseil Formations
-Description: Extension conçue pour intégrer l'API de Digiforma. Cette extension permet de remonter automatiquement certaines informations des formations depuis Digiforma et de les afficher de manière dynamique sur le site.
-Version: 1.0
-Author: Bertrand Delanlssays
-*/
 
-// Sécurité : empêche l'accès direct aux fichiers
-if ( ! defined( 'ABSPATH' ) ) {
-    exit; // Exit if accessed directly
-}
-
-// Fichiers de shortcode
-include 'shortcodes/shortcode-digiforma.php';
-
-// Administration
 // Ajouter une page de réglages pour entrer la clé API
 add_action('admin_menu', 'ac_formations_add_admin_menu');
 add_action('admin_init', 'ac_formations_settings_init');
@@ -91,29 +76,3 @@ function ac_formations_admin_styles($hook) {
 }
 
 
-// Enqueue React and custom scripts
-function digiforma_enqueue_scripts() {
-    $asset_file = plugin_dir_path( __FILE__ ) . 'build/index.asset.php';
-
-    if ( ! file_exists( $asset_file ) ) {
-        return;
-    }
-
-    $asset = include $asset_file;
-
-    wp_enqueue_script(
-        'digiforma-react-app',
-        plugins_url( 'build/index.js', __FILE__ ),
-        $asset['dependencies'],
-        $asset['version'],
-        true
-    );
-
-    wp_enqueue_style(
-        'digiforma-react-app-style',
-        plugins_url( 'build/index.css', __FILE__ ),
-        array(),
-        $asset['version']
-    );
-}
-add_action( 'wp_enqueue_scripts', 'digiforma_enqueue_scripts' );
