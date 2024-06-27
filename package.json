@@ -1,0 +1,19 @@
+{
+  "name": "ac-formations",
+  "version": "1.0.0",
+  "description": "Extension Altius Conseil",
+  "main": "index.js",
+  "scripts": {
+    "build": "wp-scripts build",
+    "start": "wp-scripts start"
+  },
+  "keywords": [],
+  "author": "Bertrand Delanlssays",
+  "license": "ISC",
+  "devDependencies": {
+    "@wordpress/scripts": "^27.0.0"
+  },
+  "dependencies": {
+    "graphql-request": "^7.0.1"
+  }
+}

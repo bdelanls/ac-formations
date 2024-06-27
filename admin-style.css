@@ -1,0 +1,8 @@
+.ac-formations-settings input[type="text"] {
+    width: 100%;
+    max-width: 800px;
+}
+
+.ac-formations-settings th {
+    max-width: max-content;
+}
