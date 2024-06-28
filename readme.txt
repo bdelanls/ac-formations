@@ -1,4 +1,4 @@
-=== AC Formations ===
+=== Altius Conseil Formations ===
 Contributors: Bertrand Delanlssays
 Tags: formations, Digiforma, shortcode, API
 Requires at least: 5.0

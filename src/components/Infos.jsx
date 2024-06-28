@@ -9,7 +9,7 @@ function Infos({ program }) {
     };
 
     return (
-        <div>
+        <div class="formation-infos">
             <p>Formation créée le {formatDate(program.createdAt)}.</p>
             <p>Dernière mise à jour le {formatDate(program.updatedAt)}.</p>
             <p>Version du programme : {program.version}</p>

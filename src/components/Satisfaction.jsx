@@ -2,9 +2,8 @@ import React from 'react';
 
 const Satisfaction = ({ averageScore, evaluationCount }) => {
     return (
-        <div>
-            <p>Taux de satisfaction des apprenants: {averageScore}/10</p>
-            <p>Nombre d'avis: {evaluationCount} avis</p>
+        <div class="formation-satisfaction">
+            <p>{averageScore}/10 ({evaluationCount} avis)</p>
         </div>
     );
 };

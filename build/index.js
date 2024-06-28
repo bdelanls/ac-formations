@@ -18,13 +18,14 @@ __webpack_require__.r(__webpack_exports__);
 const File = ({
   documents
 }) => {
-  return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, "Documents"), documents.map((doc, index) => doc.downloadable && (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
+  return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    class: "formation-document"
+  }, documents.map((doc, index) => doc.downloadable && (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
     key: index
   }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("a", {
     href: doc.url,
-    target: "_blank",
-    rel: "noopener noreferrer"
-  }, "T\xE9l\xE9charger le document"))));
+    target: "_blank"
+  }, "T\xE9l\xE9chargez le programme"))));
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (File);
 
@@ -54,7 +55,9 @@ function Infos({
     };
     return new Date(dateString).toLocaleDateString('fr-FR', options);
   };
-  return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Formation cr\xE9\xE9e le ", formatDate(program.createdAt), "."), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Derni\xE8re mise \xE0 jour le ", formatDate(program.updatedAt), "."), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Version du programme : ", program.version));
+  return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    class: "formation-infos"
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Formation cr\xE9\xE9e le ", formatDate(program.createdAt), "."), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Derni\xE8re mise \xE0 jour le ", formatDate(program.updatedAt), "."), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Version du programme : ", program.version));
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Infos);
 
@@ -85,9 +88,9 @@ const NextDates = ({
     return new Date(dateString).toLocaleDateString('fr-FR', options);
   };
   const upcomingSessions = sessions.filter(session => new Date(session.startDate) >= new Date());
-  return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, "Prochaines dates de formation"), upcomingSessions.map((session, index) => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    key: index
-  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Date de d\xE9but: ", formatDate(session.startDate)), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Date de fin: ", formatDate(session.endDate)))));
+  return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    class: "formation-nextdates"
+  }, upcomingSessions.map((session, index) => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Du ", formatDate(session.startDate), " au ", formatDate(session.endDate))));
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (NextDates);
 
@@ -111,7 +114,9 @@ const Satisfaction = ({
   averageScore,
   evaluationCount
 }) => {
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Taux de satisfaction des apprenants: ", averageScore, "/10"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Nombre d'avis: ", evaluationCount, " avis"));
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    class: "formation-satisfaction"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, averageScore, "/10 (", evaluationCount, " avis)"));
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Satisfaction);
 

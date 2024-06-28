@@ -9,13 +9,9 @@ const NextDates = ({ sessions }) => {
     const upcomingSessions = sessions.filter(session => new Date(session.startDate) >= new Date());
 
     return (
-        <div>
-            <h3>Prochaines dates de formation</h3>
+        <div class="formation-nextdates">
             {upcomingSessions.map((session, index) => (
-                <div key={index}>
-                    <p>Date de début: {formatDate(session.startDate)}</p>
-                    <p>Date de fin: {formatDate(session.endDate)}</p>
-                </div>
+                    <p>Du {formatDate(session.startDate)} au {formatDate(session.endDate)}</p>
             ))}
         </div>
     );
