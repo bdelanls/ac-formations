@@ -1,19 +1,18 @@
 import { createElement } from '@wordpress/element';
 
 const NextDates = ({ sessions }) => {
-    const formatDate = (dateString) => {
-        const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-        return new Date(dateString).toLocaleDateString('fr-FR', options);
-    };
-
-    const upcomingSessions = sessions.filter(session => new Date(session.startDate) >= new Date());
+    if (!sessions || sessions.length === 0) {
+        return <div className="no-sessions">Pas de sessions pour le moment</div>;
+    }
 
     return (
-        <div class="formation-nextdates">
-            {upcomingSessions.map((session, index) => (
-                    <p>Du {formatDate(session.startDate)} au {formatDate(session.endDate)}</p>
+        <ul className="session-list">
+            {sessions.map((session, index) => (
+                <li key={index}>
+                    Du {new Date(session.startDate).toLocaleDateString()} au {new Date(session.endDate).toLocaleDateString()}
+                </li>
             ))}
-        </div>
+        </ul>
     );
 };
 

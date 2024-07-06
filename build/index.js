@@ -18,13 +18,17 @@ __webpack_require__.r(__webpack_exports__);
 const File = ({
   documents
 }) => {
+  if (documents.length === 0) {
+    return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Aucun document disponible.");
+  }
   return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     class: "formation-document"
   }, documents.map((doc, index) => doc.downloadable && (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
     key: index
   }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("a", {
     href: doc.url,
-    target: "_blank"
+    target: "_blank",
+    rel: "noopener noreferrer"
   }, "T\xE9l\xE9chargez le programme"))));
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (File);
@@ -79,18 +83,16 @@ __webpack_require__.r(__webpack_exports__);
 const NextDates = ({
   sessions
 }) => {
-  const formatDate = dateString => {
-    const options = {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    };
-    return new Date(dateString).toLocaleDateString('fr-FR', options);
-  };
-  const upcomingSessions = sessions.filter(session => new Date(session.startDate) >= new Date());
-  return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    class: "formation-nextdates"
-  }, upcomingSessions.map((session, index) => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Du ", formatDate(session.startDate), " au ", formatDate(session.endDate))));
+  if (!sessions || sessions.length === 0) {
+    return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "no-sessions"
+    }, "Pas de sessions pour le moment");
+  }
+  return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("ul", {
+    className: "session-list"
+  }, sessions.map((session, index) => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("li", {
+    key: index
+  }, "Du ", new Date(session.startDate).toLocaleDateString(), " au ", new Date(session.endDate).toLocaleDateString())));
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (NextDates);
 
@@ -106,29 +108,65 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _satisfaction_scss__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./satisfaction.scss */ "./src/components/satisfaction.scss");
 
 
 const Satisfaction = ({
   averageScore,
   evaluationCount
 }) => {
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    class: "formation-satisfaction"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, averageScore, "/10 (", evaluationCount, " avis)"));
+  const [isVisible, setIsVisible] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(false);
+  const progressRef = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
+  const scorePercentage = averageScore / 10 * 100;
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setIsVisible(true);
+        observer.disconnect();
+      }
+    }, {
+      threshold: 0.1
+    });
+    if (progressRef.current) {
+      observer.observe(progressRef.current);
+    }
+    return () => {
+      if (progressRef.current) {
+        observer.unobserve(progressRef.current);
+      }
+    };
+  }, []);
+  return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "satisfaction-container"
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "progress-bar",
+    ref: progressRef
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: `progress-fill ${isVisible ? 'visible' : ''}`,
+    style: {
+      width: isVisible ? `${scorePercentage}%` : 0
+    }
+  })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "score-text"
+  }, averageScore, "/10 ", (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+    className: "evaluation-count"
+  }, "(", evaluationCount, " avis)")));
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Satisfaction);
 
 /***/ }),
 
-/***/ "react":
-/*!************************!*\
-  !*** external "React" ***!
-  \************************/
-/***/ ((module) => {
+/***/ "./src/components/satisfaction.scss":
+/*!******************************************!*\
+  !*** ./src/components/satisfaction.scss ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-module.exports = window["React"];
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
 
 /***/ }),
 
@@ -6065,7 +6103,7 @@ async function fetchData(programId) {
     }
   });
   const query = `
-          query GetProgramDetails($programId: ID!) {
+        query GetProgramDetails($programId: ID!) {
             program(id: $programId) {
                 version
                 createdAt
@@ -6078,12 +6116,7 @@ async function fetchData(programId) {
                     trainingSession {
                         startDate
                         endDate
-                        evaluationScore {
-                            totalScores {
-                                evaluationType
-                                score
-                            }
-                        }
+                        pipelineState
                     }
                 }
             }
@@ -6092,79 +6125,83 @@ async function fetchData(programId) {
   const variables = {
     programId
   };
-  const data = await client.request(query, variables);
-  return data.program;
+  try {
+    const data = await client.request(query, variables);
+    return data.program;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    return null;
+  }
 }
-function calculateSatisfactionAndCount(variants) {
-  let totalScore = 0;
-  let evaluationCount = 0;
-  variants.forEach(variant => {
+function filterAndCalculate(variants) {
+  const today = new Date();
+  const futureSessions = variants.filter(variant => {
     const session = variant.trainingSession;
-    const scores = session.evaluationScore?.[0]?.totalScores;
-    if (scores) {
-      scores.forEach(score => {
-        if (score.evaluationType === 'TOTAL') {
-          totalScore += score.score;
-          evaluationCount++;
-        }
-      });
-    }
-  });
-  const averageScore = evaluationCount > 0 ? (totalScore / evaluationCount).toFixed(1) : 'N/A';
-  return {
-    averageScore,
-    evaluationCount
-  };
+    const isOngoing = session.pipelineState === 'ongoing';
+    const isFutureDate = new Date(session.startDate) >= today;
+    return isOngoing && isFutureDate;
+  }).map(variant => variant.trainingSession);
+  return futureSessions;
 }
 const renderComponent = (Component, container, data) => {
   const root = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createRoot)(container);
   root.render((0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(Component, data));
 };
-_wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_0___default()(async () => {
+async function initializeDigiformaApp() {
   const containers = document.querySelectorAll('.digiforma-app');
-  const renderedContainers = new Set();
-  containers.forEach(async container => {
-    const parentElement = container.closest('[id^="formation-"]');
-    if (parentElement) {
-      const programId = parentElement.id.split('-')[1];
-      const shortcodeType = container.getAttribute('data-shortcode');
-      if (!renderedContainers.has(container)) {
-        const program = await fetchData(programId);
 
-        // Filtrer les sessions pour ne garder que celles futures
-        const today = new Date();
-        const futureSessions = program.variants.map(variant => variant.trainingSession).filter(session => new Date(session.startDate) >= today);
-        const {
-          averageScore,
-          evaluationCount
-        } = calculateSatisfactionAndCount(program.variants);
-        switch (shortcodeType) {
-          case 'formation_infos':
-            renderComponent(_components_Infos__WEBPACK_IMPORTED_MODULE_3__["default"], container, {
-              program
-            });
-            break;
-          case 'formation_nextdates':
-            renderComponent(_components_NextDates__WEBPACK_IMPORTED_MODULE_4__["default"], container, {
-              sessions: futureSessions
-            });
-            break;
-          case 'formation_satisfaction':
-            renderComponent(_components_Satisfaction__WEBPACK_IMPORTED_MODULE_5__["default"], container, {
-              averageScore,
-              evaluationCount
-            });
-            break;
-          case 'formation_document':
-            renderComponent(_components_File__WEBPACK_IMPORTED_MODULE_6__["default"], container, {
-              documents: program.documents
-            });
-            break;
-        }
-        renderedContainers.add(container);
-      }
+  // Initialize idDigiforma once
+  const idDigiformaElement = document.getElementById('id-digiforma');
+  if (!idDigiformaElement) {
+    console.error('ID Digiforma element not found.');
+    return;
+  }
+  const idDigiforma = idDigiformaElement.innerText.trim();
+  if (!idDigiforma) {
+    console.error('ID Digiforma not found.');
+    return;
+  }
+  for (const container of containers) {
+    const shortcodeType = container.getAttribute('data-shortcode');
+    const averageScore = parseFloat(container.getAttribute('data-average-score'));
+    const evaluationCount = parseInt(container.getAttribute('data-evaluation-count'), 10);
+    if (shortcodeType === 'formation_satisfaction' && isNaN(averageScore)) {
+      container.closest('.satisfaction-content').style.display = 'none';
+      continue;
     }
-  });
+    try {
+      const program = await fetchData(idDigiforma);
+      const futureSessions = filterAndCalculate(program.variants);
+      switch (shortcodeType) {
+        case 'formation_infos':
+          renderComponent(_components_Infos__WEBPACK_IMPORTED_MODULE_3__["default"], container, {
+            program
+          });
+          break;
+        case 'formation_nextdates':
+          renderComponent(_components_NextDates__WEBPACK_IMPORTED_MODULE_4__["default"], container, {
+            sessions: futureSessions
+          });
+          break;
+        case 'formation_document':
+          renderComponent(_components_File__WEBPACK_IMPORTED_MODULE_6__["default"], container, {
+            documents: program.documents
+          });
+          break;
+        case 'formation_satisfaction':
+          renderComponent(_components_Satisfaction__WEBPACK_IMPORTED_MODULE_5__["default"], container, {
+            averageScore,
+            evaluationCount
+          });
+          break;
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+}
+_wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_0___default()(() => {
+  initializeDigiformaApp();
 });
 /******/ })()
 ;

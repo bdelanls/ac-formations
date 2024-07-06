@@ -2,7 +2,7 @@ import domReady from '@wordpress/dom-ready';
 import { createElement, createRoot } from '@wordpress/element';
 import { GraphQLClient } from 'graphql-request';
 import Infos from './components/Infos';
-import NextDates from './components/NextDates'
+import NextDates from './components/NextDates';
 import Satisfaction from './components/Satisfaction';
 import File from './components/File';
 
@@ -21,7 +21,7 @@ async function fetchData(programId) {
     });
 
     const query = `
-          query GetProgramDetails($programId: ID!) {
+        query GetProgramDetails($programId: ID!) {
             program(id: $programId) {
                 version
                 createdAt
@@ -34,12 +34,7 @@ async function fetchData(programId) {
                     trainingSession {
                         startDate
                         endDate
-                        evaluationScore {
-                            totalScores {
-                                evaluationType
-                                score
-                            }
-                        }
+                        pipelineState
                     }
                 }
             }
@@ -47,75 +42,85 @@ async function fetchData(programId) {
     `;
 
     const variables = { programId };
-    const data = await client.request(query, variables);
-    return data.program;
+    try {
+        const data = await client.request(query, variables);
+        return data.program;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        return null;
+    }
 }
 
-function calculateSatisfactionAndCount(variants) {
-  let totalScore = 0;
-  let evaluationCount = 0;
+function filterAndCalculate(variants) {
+    const today = new Date();
 
-  variants.forEach(variant => {
-      const session = variant.trainingSession;
-      const scores = session.evaluationScore?.[0]?.totalScores;
+    const futureSessions = variants
+        .filter(variant => {
+            const session = variant.trainingSession;
+            const isOngoing = session.pipelineState === 'ongoing';
+            const isFutureDate = new Date(session.startDate) >= today;
+            return isOngoing && isFutureDate;
+        })
+        .map(variant => variant.trainingSession);
 
-      if (scores) {
-          scores.forEach(score => {
-              if (score.evaluationType === 'TOTAL') {
-                  totalScore += score.score;
-                  evaluationCount++;
-              }
-          });
-      }
-  });
-
-  const averageScore = evaluationCount > 0 ? (totalScore / evaluationCount).toFixed(1) : 'N/A';
-
-  return { averageScore, evaluationCount };
+    return futureSessions;
 }
 
 const renderComponent = (Component, container, data) => {
-  const root = createRoot(container);
-  root.render(createElement(Component, data));
+    const root = createRoot(container);
+    root.render(createElement(Component, data));
 };
 
-domReady(async () => {
-  const containers = document.querySelectorAll('.digiforma-app');
-  const renderedContainers = new Set();
+async function initializeDigiformaApp() {
+    const containers = document.querySelectorAll('.digiforma-app');
 
-  containers.forEach(async (container) => {
-      const parentElement = container.closest('[id^="formation-"]');
-      if (parentElement) {
-          const programId = parentElement.id.split('-')[1];
-          const shortcodeType = container.getAttribute('data-shortcode');
+    // Initialize idDigiforma once
+    const idDigiformaElement = document.getElementById('id-digiforma');
+    if (!idDigiformaElement) {
+        console.error('ID Digiforma element not found.');
+        return;
+    }
 
-          if (!renderedContainers.has(container)) {
-              const program = await fetchData(programId);
+    const idDigiforma = idDigiformaElement.innerText.trim();
+    if (!idDigiforma) {
+        console.error('ID Digiforma not found.');
+        return;
+    }
 
-              // Filtrer les sessions pour ne garder que celles futures
-              const today = new Date();
-              const futureSessions = program.variants.map(variant => variant.trainingSession)
-                  .filter(session => new Date(session.startDate) >= today);
+    for (const container of containers) {
+        const shortcodeType = container.getAttribute('data-shortcode');
+        const averageScore = parseFloat(container.getAttribute('data-average-score'));
+        const evaluationCount = parseInt(container.getAttribute('data-evaluation-count'), 10);
 
-              const { averageScore, evaluationCount } = calculateSatisfactionAndCount(program.variants);
+        if (shortcodeType === 'formation_satisfaction' && isNaN(averageScore)) {
+            container.closest('.satisfaction-content').style.display = 'none';
+            continue;
+        }
 
-              switch (shortcodeType) {
-                  case 'formation_infos':
-                      renderComponent(Infos, container, { program });
-                      break;
-                  case 'formation_nextdates':
-                      renderComponent(NextDates, container, { sessions: futureSessions });
-                      break;
-                  case 'formation_satisfaction':
-                      renderComponent(Satisfaction, container, { averageScore, evaluationCount });
-                      break;
-                  case 'formation_document':
-                      renderComponent(File, container, { documents: program.documents });
-                      break;
-              }
+        try {
+            const program = await fetchData(idDigiforma);
+            const futureSessions = filterAndCalculate(program.variants);
 
-              renderedContainers.add(container);
-          }
-      }
-  });
+            switch (shortcodeType) {
+                case 'formation_infos':
+                    renderComponent(Infos, container, { program });
+                    break;
+                case 'formation_nextdates':
+                    renderComponent(NextDates, container, { sessions: futureSessions });
+                    break;
+                case 'formation_document':
+                    renderComponent(File, container, { documents: program.documents });
+                    break;
+                case 'formation_satisfaction':
+                    renderComponent(Satisfaction, container, { averageScore, evaluationCount });
+                    break;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+}
+
+domReady(() => {
+    initializeDigiformaApp();
 });

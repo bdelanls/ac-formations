@@ -13,6 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Fichiers de shortcode
 include 'shortcodes/shortcode-digiforma.php';
+include 'shortcodes/shortcode-formation.php';
 
 // Administration
 // Ajouter une page de réglages pour entrer la clé API
@@ -91,6 +92,8 @@ function ac_formations_admin_styles($hook) {
 }
 
 
+
+
 // Enqueue React and custom scripts
 function digiforma_enqueue_scripts() {
     $asset_file = plugin_dir_path( __FILE__ ) . 'build/index.asset.php';
@@ -117,3 +120,7 @@ function digiforma_enqueue_scripts() {
     );
 }
 add_action( 'wp_enqueue_scripts', 'digiforma_enqueue_scripts' );
+
+
+
+
